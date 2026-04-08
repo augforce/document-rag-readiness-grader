@@ -1,0 +1,35 @@
+Please analyze this technical document for RAG pipeline readiness. Provide the complete readiness score and improvement recommendations.
+**Approved Applications and Desktop Software List.pdf**
+
+═══════════════════════════════════
+📊 DOCUMENT READINESS ANALYSIS
+═══════════════════════════════════
+
+🎯 OVERALL READINESS SCORE: 76/100
+
+📈 COMPONENT BREAKDOWN:
+├─ Chunking Suitability: 75/100
+├─ Metadata Clarity: 60/100
+└─ Semantic Density: 90/100
+
+⚠️ TOP 3 PRIORITY FIXES:
+
+Add Versioning and Last Updated Date: This is a policy document. RAG systems need to know if the information is current. Add a "Last Updated: [Date]" and "Version: [X.X]" field at the top.
+Normalize Table Headers: The tables span multiple pages. Ensure that when chunking, the header row ("Software Name" | "Security Review Notes" / "Security Problem(s)") is repeated or injected into every chunk so the LLM doesn't lose context on which column is which.
+Clarify "Disapproved" Logic: The document lists "Disapproved Software" with reasons. Ensure these are clearly tagged as "Status: Disapproved" in the metadata of the chunk, so the RAG system doesn't accidentally recommend a tool just because it appears in the document.
+✅ RAG READINESS: Ready for Production (with minor revisions)
+
+💡 DETAILED ANALYSIS:
+This document is highly effective for RAG because it is essentially a structured knowledge base. The semantic density is excellent—every line is a discrete fact (Software X is approved because Y; Software Z is disapproved because A). This makes it very easy for a vector database to perform high-precision retrieval when a user asks, "Is [Software Name] approved?"
+
+The primary challenge is the tabular format spanning multiple pages. Standard PDF parsers often struggle to maintain the relationship between a software name on the left and its corresponding note on the right when the table breaks across pages. If the RAG pipeline splits a chunk in the middle of a table, the model might lose the connection between the software name and the security note. The content itself is clean and unambiguous, which is a major strength.
+
+🔧 RECOMMENDED CHUNKING STRATEGY:
+Hybrid Approach (Table-Aware Chunking).
+
+Method: Do not use fixed-size character chunking. Use "Row-Based Chunking."
+Strategy: Treat each row in the "Approved" and "Disapproved" tables as a single, atomic chunk.
+Metadata Injection: For every row chunk, prepend the table header and the section title.
+Example: "Section: Approved Software | Software Name: 1Password | Security Review Notes: This is the official and only supported password manager..."
+Why: This ensures that even if a single row is retrieved, the LLM has the full context of what that row represents without needing to see the rest of the table.
+═══════════════════════════════════
